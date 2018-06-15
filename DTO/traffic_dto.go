@@ -1,11 +1,35 @@
 package DTO
 
-import "time"
+import (
+	"time"
+	"encoding/json"
+)
+
+type MyTime struct {
+	time.Time
+}
 
 type TrafficDto struct {
-	VisitParams string     `json:"visit_params"`
+	VisitParams map[string]string     `json:"visit_params"`
 	SourceId    int64      `json:"source_id"`
 	Cookie      string     `json:"cookie"`
 	Page        string     `json:"page"`
-	CratedAt    time.Time  `json:"created_at"`
+	CratedAt    MyTime     `json:"created_at"`
+}
+
+func (mt *MyTime) UnmarshalJSON(b []byte) error {
+	var timeStr string
+	err := json.Unmarshal(b, &timeStr)
+	if err != nil {
+	return err
+	}
+
+	parsedTime, err := time.Parse("2006-01-02 15:04:05", timeStr)
+	if err != nil {
+		return err
+	}
+
+	*mt = MyTime{parsedTime}
+
+	return nil
 }

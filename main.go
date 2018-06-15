@@ -9,6 +9,12 @@ import (
 	"github.com/timaa/trafficStat/rabbit"
 	"encoding/json"
 	"github.com/timaa/trafficStat/DTO"
+	"github.com/timaa/trafficStat/worker"
+)
+
+const (
+	WorkerCount = 10
+	WorkerInputChanSize = 4
 )
 
 func init() {
@@ -60,6 +66,15 @@ func main() {
 		fmt.Printf("rabbit error:%v \n", err)
 	}
 
+
+
+	workerInput := make(chan *DTO.TrafficDto, WorkerInputChanSize)
+
+	for i := 0; i < WorkerCount; i++ {
+		w := &worker.Worker{}
+		go w.Run(db, workerInput, i)
+	}
+
 	forever := make(chan bool)
 	go func() {
 		for d := range msgs {
@@ -67,8 +82,7 @@ func main() {
 			if err := json.Unmarshal(d.Body, b); err != nil {
 				log.Printf("%v \n", err)
 			}
-
-			fmt.Println(b.Cookie, b.CratedAt,b.Page, b.SourceId, b.VisitParams)
+			workerInput <- b
 			d.Ack(false)
 		}
 	}()
