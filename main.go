@@ -55,7 +55,7 @@ func main() {
 		log.Printf("error %v \n", err)
 	}
 
-	deviceRepository := repository.New(db)
+	deviceRepository := repository.NewDeviceRepository(db)
 
 	devices, err := deviceRepository.GetAll()
 	for _, device := range devices {
@@ -77,7 +77,7 @@ func main() {
 
 	forever := make(chan bool)
 	go func() {
-		for d := range msgs {
+		for d := range msgs { // bottleNeck Возможно имеет смысл анмаршалить внутри воркеров
 			 b := &DTO.TrafficDto{}
 			if err := json.Unmarshal(d.Body, b); err != nil {
 				log.Printf("%v \n", err)

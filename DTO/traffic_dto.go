@@ -14,14 +14,14 @@ type TrafficDto struct {
 	SourceId    int64      `json:"source_id"`
 	Cookie      string     `json:"cookie"`
 	Page        string     `json:"page"`
-	CratedAt    MyTime     `json:"created_at"`
+	CreatedAt    MyTime     `json:"created_at"`
 }
 
 func (mt *MyTime) UnmarshalJSON(b []byte) error {
 	var timeStr string
 	err := json.Unmarshal(b, &timeStr)
 	if err != nil {
-	return err
+		return err
 	}
 
 	parsedTime, err := time.Parse("2006-01-02 15:04:05", timeStr)
